@@ -1,0 +1,5 @@
+__pycache__/
+.pytest_cache/
+.venv/
+recommender/model/
+.DS_Store

@@ -1,0 +1,48 @@
+# Run the whole stack:  docker compose up --build
+# First time only:      docker compose exec store php artisan db:seed --force
+#                       docker compose exec store php artisan recommender:sync
+# Requires store/ to be a full Laravel app (run scripts/setup-store.sh first).
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: shopsense
+      MYSQL_USER: shopsense
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  recommender:
+    build: ./recommender
+    ports:
+      - "8001:8001"
+    volumes:
+      - model_data:/srv/model
+
+  store:
+    build: ./store
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      recommender:
+        condition: service_started
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: shopsense
+      DB_USERNAME: shopsense
+      DB_PASSWORD: secret
+      RECOMMENDER_URL: http://recommender:8001
+
+volumes:
+  db_data:
+  model_data:
