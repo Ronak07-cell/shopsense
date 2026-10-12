@@ -42,7 +42,7 @@ Events are weighted (`view` 1, `cart` 3, `purchase` 5) and log-damped so repeate
 
 | Model | HitRate@10 | NDCG@10 | Coverage |
 |---|---|---|---|
-| Popularity (baseline) | 0.157 | 0.085 | 0.375 |
+| Popularity (baseline) | 0.161 | 0.086 | 0.375 |
 | Item-item CF | 0.291 | 0.169 | 1.000 |
 | Content (TF-IDF) | 0.260 | 0.156 | 1.000 |
 | **Hybrid** | **0.315** | **0.177** | **1.000** |
