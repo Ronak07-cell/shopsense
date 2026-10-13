@@ -1,5 +1,10 @@
 # ShopSense
 
+[![CI](https://github.com/Ronak07-cell/shopsense/actions/workflows/ci.yml/badge.svg)](https://github.com/Ronak07-cell/shopsense/actions/workflows/ci.yml)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Laravel](https://img.shields.io/badge/Laravel-PHP-red)
+![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688)
+
 An e-commerce platform with an automated recommendation engine.
 
 A **Laravel** storefront (catalogue, search, cart, checkout, orders, admin) records what shoppers view, add to cart and buy. A separate **Python (FastAPI + scikit-learn)** service learns from those events and returns ranked product suggestions. If the service is slow or down, the store falls back to best sellers, so shopping never breaks.
@@ -12,6 +17,16 @@ flowchart LR
     S -- "POST /train (nightly)" --> R
     R --> M[(Saved model)]
 ```
+
+## Tech stack
+
+| Layer | Tools |
+|---|---|
+| Storefront | Laravel, Blade, Tailwind CSS (CDN), session cart |
+| Database | MySQL (Docker), SQLite (local development) |
+| Recommender | Python, FastAPI, scikit-learn, NumPy, SciPy, joblib |
+| Quality | pytest, Laravel feature tests, offline evaluation script |
+| DevOps | Docker Compose, GitHub Actions CI |
 
 ## Features
 
@@ -122,6 +137,19 @@ shopsense/
 └── .github/workflows/ci.yml
 ```
 
+## Design decisions
+
+- **Separate service for the model.** The store only needs three HTTP calls, so the recommender can be retrained, replaced or scaled without touching the shop.
+- **Shopping never breaks.** The store calls the recommender with a 2 second timeout, caches answers for 5 minutes, and falls back to best sellers on any failure.
+- **Item-item collaborative filtering.** It handles a growing user base better than user-user similarity, and each item's neighbours can be precomputed at training time.
+- **Weighted, log-damped events.** A purchase says more than a view, and repeated views should not dominate, so weights are `view` 1, `cart` 3, `purchase` 5 with a `log1p` damp.
+- **Cold start by design.** New shoppers get popularity, guests get picks seeded from what they just viewed, and new products get content similarity until they collect events.
+- **Leave-one-purchase-out evaluation.** The evaluation script compares each signal on its own against the blend, and the build fails if the hybrid does not beat the popularity baseline.
+
+## Project status
+
+The project runs locally and with Docker Compose, and CI runs the Python tests, the offline evaluation and the Laravel tests on every push. A hosted demo is not published yet.
+
 ## Roadmap
 
 - Real payments (Stripe or Razorpay) instead of the simulated checkout
@@ -132,4 +160,8 @@ shopsense/
 
 ## Licence
 
-MIT
+MIT. See [LICENSE](LICENSE).
+
+## Author
+
+Built by **Ronak Dhaka** ([@Ronak07-cell](https://github.com/Ronak07-cell)).
