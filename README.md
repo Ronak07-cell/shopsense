@@ -66,7 +66,7 @@ The data is synthetic, with shoppers who prefer one or two categories, so treat 
 
 ## Quick start
 
-Requirements: PHP 8.2+, Composer, Python 3.10+.
+Requirements: PHP 8.4+, Composer, Python 3.10+.
 
 ```bash
 # 1. Build the store (creates a fresh Laravel app, adds ShopSense on top, migrates and seeds)
